@@ -1,41 +1,66 @@
-    // Variables para manejar el carrito
-    let carrito = [];
-    const listaProductos = document.getElementById('lista-productos');
-    const totalElement = document.getElementById('total');
-
-    // Función para agregar un producto al carrito
-    function agregarAlCarrito(nombre, precio) {
-        carrito.push({ nombre, precio });
-        renderizarCarrito();
+const products = [
+    { id: 1, name: 'Milanesa', price: 3999 },
+    { id: 2, name: 'Pechuga', price: 9999 },
+    { id: 3, name: 'Patamuslo', price: 5555 },
+    { id: 4, name: 'Maple de huevos', price: 3555 },
+ ];
+ 
+ 
+ const cart = [];
+ 
+ 
+ function renderCart() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    cartItemsContainer.innerHTML = '';
+    cart.forEach(item => {
+        const cartItemDiv = document.createElement('div');
+        cartItemDiv.classList.add('cart-item');
+        cartItemDiv.innerHTML = `
+            <h5>${item.name}</h5>
+            <p>Precio: $${item.price}</p>
+            <p>Cantidad: ${item.quantity}</p>
+            <button class="btn btn-danger" onclick="removeFromCart(${item.id})">Eliminar</button>
+        `;
+        cartItemsContainer.appendChild(cartItemDiv);
+    });
+    updateTotal();
+ }
+ 
+ 
+ function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    const cartItem = cart.find(item => item.id === productId);
+    if (cartItem) {
+        cartItem.quantity++;
+    } else {
+        cart.push({ ...product, quantity: 1 });
     }
-
-    // Función para renderizar el carrito
-    function renderizarCarrito() {
-        listaProductos.innerHTML = '';
-        let total = 0;
-        carrito.forEach(producto => {
-            const li = document.createElement('li');
-            li.textContent = `${producto.nombre}: $${producto.precio}`;
-            listaProductos.appendChild(li);
-            total += producto.precio;
-        });
-        totalElement.textContent = `$${total}`;
-    }
-
-    //botón de confirmar compra
-    document.getElementById('confirmar-compra').addEventListener('click', () => {
-        if (carrito.length > 0) {
-            alert('Compra confirmada. Gracias por su compra!');
-            // Limpia el carrito después de confirmar la compra
-            carrito = [];
-            renderizarCarrito();
+    document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+    renderCart();
+ }
+ 
+ 
+ function removeFromCart(productId) {
+    const cartIndex = cart.findIndex(item => item.id === productId);
+    if (cartIndex !== -1) {
+        if (cart[cartIndex].quantity > 1) {
+            cart[cartIndex].quantity--;
         } else {
-            alert('El carrito está vacío. Por favor, agregue productos antes de confirmar la compra.');
+            cart.splice(cartIndex, 1);
         }
-    });
-
-    
-    document.getElementById('borrar-seleccion').addEventListener('click', () => {
-        carrito = [];
-        renderizarCarrito();
-    });
+        document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+        renderCart();
+    }
+ }
+ 
+ 
+ function updateTotal() {
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    document.getElementById('cart-total').innerText = total.toFixed(2);
+ }
+ 
+ 
+ document.addEventListener('DOMContentLoaded', () => {
+    renderCart();
+ });
+ 
